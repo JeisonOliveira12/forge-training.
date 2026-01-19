@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Forge Training</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+  <h1>Forge Training</h1>
+</header>
+
+<nav>
+  <button onclick="showScreen('treinos')">Treinos</button>
+  <button onclick="showScreen('dia')">Treino do Dia</button>
+  <button onclick="showScreen('calendario')">Calendário</button>
+</nav>
+
+<main>
+
+  <!-- TREINOS -->
+  <section id="treinos" class="screen active">
+    <h2>Treinos</h2>
+
+    <div class="tabs">
+      <button onclick="openTreino('A')">A</button>
+      <button onclick="openTreino('B')">B</button>
+      <button onclick="openTreino('C')">C</button>
+      <button onclick="openTreino('D')">D</button>
+      <button onclick="openTreino('E')">E</button>
+    </div>
+
+    <div id="treino-container">
+      <p>Selecione um treino para editar.</p>
+    </div>
+  </section>
+
+  <!-- TREINO DO DIA -->
+  <section id="dia" class="screen">
+    <h2>Treino do Dia</h2>
+
+    <div id="treino-dia-info">
+      <p>Treino atual: <strong id="treino-atual">A</strong></p>
+      <p>Progresso:</p>
+      <progress id="progresso-dia" value="0" max="100"></progress>
+      <span id="percentual">0%</span>
+    </div>
+
+    <div id="lista-dia">
+      <p>Os exercícios do dia aparecerão aqui.</p>
+    </div>
+
+    <div id="status-final"></div>
+  </section>
+
+  <!-- CALENDÁRIO -->
+  <section id="calendario" class="screen">
+    <h2>Histórico de Treinos</h2>
+
+    <p>Marque manualmente treinos feitos no passado.</p>
+
+    <div id="calendario-container"></div>
+
+    <div id="resumo">
+      <h3>Resumo Geral</h3>
+      <p>Total de treinos realizados: <strong id="total-treinos">0</strong></p>
+    </div>
+  </section>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
