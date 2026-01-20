@@ -24,6 +24,7 @@ function showScreen(screenId) {
     if(screenId === 'calendario') montarCalendario();
 }
 
+// --- LÓGICA DE TEMAS ---
 function mudarTema(nome) {
     const customDiv = document.getElementById('custom-colors');
     if (nome === 'custom') {
@@ -31,7 +32,7 @@ function mudarTema(nome) {
         const c = carregar('tema_custom', { accent: '#ff8c00', bg: '#0a0e14' });
         aplicarVariaveis(c.accent, c.bg, '#1a1a1a', '#ffffff');
     } else {
-        customDiv.style.display = 'none';
+        if(customDiv) customDiv.style.display = 'none';
         const t = TEMAS[nome];
         aplicarVariaveis(t.accent, t.bg, t.card, t.text);
     }
@@ -53,6 +54,7 @@ function aplicarVariaveis(accent, bg, card, text) {
     root.style.setProperty('--text-color', text);
 }
 
+// --- RESTANTE DAS FUNÇÕES ---
 function salvarConfig() {
     const qtd = document.getElementById('select-qtd').value;
     salvar('qtd_treinos', qtd);
@@ -142,6 +144,7 @@ function mudarMes(direcao) {
 function montarCalendario() {
     const grade = document.getElementById('calendario-grade');
     const labelMes = document.getElementById('mes-atual');
+    if(!grade) return;
     grade.innerHTML = '';
     const ano = dataVisualizacao.getFullYear();
     const mes = dataVisualizacao.getMonth();
@@ -164,9 +167,9 @@ function montarCalendario() {
 function editarDia(data) {
     const n = prompt(`Treino para ${data}:`, historico[data] || "");
     if (n !== null) {
-        if (n.trim() === "") delete historico[data];
-        else historico[n.toUpperCase()] = n.toUpperCase();
-        historico[data] = n.toUpperCase();
+        const valor = n.toUpperCase().trim();
+        if (valor === "") delete historico[data];
+        else historico[data] = valor;
         salvar('historico', historico);
         montarCalendario();
     }
@@ -186,7 +189,7 @@ window.onload = () => {
     if(document.getElementById('select-qtd')) document.getElementById('select-qtd').value = q;
     aplicarQuantidade(q);
     
-    // Carregar Tema Salvo
+    // Carregar Tema
     const tSalvo = carregar('tema_escolhido', 'industrial');
     mudarTema(tSalvo);
     if(document.getElementById('select-tema')) document.getElementById('select-tema').value = tSalvo;
