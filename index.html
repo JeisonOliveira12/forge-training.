@@ -22,7 +22,7 @@
 
 <main>
   <section id="treinos" class="screen active">
-    <h2>Treinos</h2>
+    <h2>Meus Treinos</h2>
     <div class="tabs">
       <button id="btn-A" onclick="openTreino('A')">A</button>
       <button id="btn-B" onclick="openTreino('B')">B</button>
@@ -39,7 +39,6 @@
     <h2>Treino do Dia</h2>
     <div id="treino-dia-info">
       <p>Treino atual: <strong id="treino-atual">A</strong></p>
-      <p>Progresso:</p>
       <progress id="progresso-dia" value="0" max="100"></progress>
       <span id="percentual">0%</span>
     </div>
@@ -48,11 +47,16 @@
   </section>
 
   <section id="calendario" class="screen">
-    <h2>Histórico</h2>
-    <div id="calendario-container"></div>
-    <div id="resumo">
-      <h3>Resumo Geral</h3>
+    <h2>Histórico Visual</h2>
+    <div class="calendar-nav" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+      <button onclick="mudarMes(-1)">◀</button>
+      <h3 id="mes-atual"></h3>
+      <button onclick="mudarMes(1)">▶</button>
+    </div>
+    <div id="calendario-grade" class="calendar-grid"></div>
+    <div id="resumo" style="margin-top:20px; border-top:1px solid #444; padding-top:15px;">
       <p>Total realizados: <strong id="total-treinos">0</strong></p>
+      <button onclick="resetarMes()" style="background:#a00; color:white; border:none; padding:10px; border-radius:4px; width:100%; font-weight:bold;">LIMPAR MÊS ATUAL</button>
     </div>
   </section>
 
@@ -64,9 +68,8 @@
         <option value="2">2 Treinos (A, B)</option>
         <option value="3">3 Treinos (A, B, C)</option>
         <option value="4">4 Treinos (A, B, C, D)</option>
-        <option value="5" selected>5 Treinos (A, B, C, D, E)</option>
+        <option value="5">5 Treinos (A, B, C, D, E)</option>
       </select>
-      <p style="font-size: 0.8em; color: #888; margin-top: 15px;">O ciclo voltará ao início automaticamente após o último treino definido.</p>
     </div>
   </section>
 </main>
