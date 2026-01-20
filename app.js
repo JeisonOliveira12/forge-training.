@@ -1,20 +1,16 @@
-// ================== CONFIGURAÇÕES E CICLO ==================
 const TREINOS = ['A', 'B', 'C', 'D', 'E'];
-
-// Funções de Persistência
 const salvar = (chave, valor) => localStorage.setItem(chave, JSON.stringify(valor));
 const carregar = (chave, padrao) => {
   const dado = localStorage.getItem(chave);
   return dado ? JSON.parse(dado) : padrao;
 };
 
-// Inicialização de Dados
 const treinoVazio = () => Array.from({ length: 10 }, () => ({ nome: '', serie: '', repeticao: '', peso: '', feito: false }));
 let dadosTreinos = carregar('dadosTreinos', { A: treinoVazio(), B: treinoVazio(), C: treinoVazio(), D: treinoVazio(), E: treinoVazio() });
 let indiceTreinoAtual = carregar('indiceTreinoAtual', 0);
 let historico = carregar('historico', {});
+let dataVisualizacao = new Date();
 
-// Função para mostrar telas
 function showScreen(screenId) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(screenId).classList.add('active');
@@ -22,7 +18,6 @@ function showScreen(screenId) {
     if(screenId === 'calendario') montarCalendario();
 }
 
-// Lógica de Quantidade de Treinos
 function salvarConfig() {
     const qtd = document.getElementById('select-qtd').value;
     localStorage.setItem('qtd_treinos', qtd);
@@ -34,14 +29,8 @@ function aplicarQuantidade(qtd) {
         const btn = document.getElementById(`btn-${letra}`);
         if (btn) btn.style.display = (index < qtd) ? 'inline-block' : 'none';
     });
-    // Se o índice atual ficou fora do novo limite, reseta para o A (0)
-    if (indiceTreinoAtual >= qtd) {
-        indiceTreinoAtual = 0;
-        salvar('indiceTreinoAtual', 0);
-    }
 }
 
-// ================== GERENCIAMENTO DE TREINOS ==================
 function openTreino(letra) {
   const container = document.getElementById('treino-container');
   container.innerHTML = `<h3>Treino ${letra}</h3>`;
@@ -49,9 +38,9 @@ function openTreino(letra) {
     container.innerHTML += `
       <div style="margin-bottom:8px">
         <input placeholder="Exercicio" value="${ex.nome}" oninput="atualizar('${letra}',${i},'nome',this.value)">
-        <input placeholder="S" value="${ex.serie}" style="width:30px" oninput="atualizar('${letra}',${i},'serie',this.value)">
-        <input placeholder="R" value="${ex.repeticao}" style="width:30px" oninput="atualizar('${letra}',${i},'repeticao',this.value)">
-        <input placeholder="Kg" value="${ex.peso}" style="width:40px" oninput="atualizar('${letra}',${i},'peso',this.value)">
+        <input placeholder="S" value="${ex.serie}" oninput="atualizar('${letra}',${i},'serie',this.value)">
+        <input placeholder="R" value="${ex.repeticao}" oninput="atualizar('${letra}',${i},'repeticao',this.value)">
+        <input placeholder="Kg" value="${ex.peso}" oninput="atualizar('${letra}',${i},'peso',this.value)">
       </div>`;
   });
 }
@@ -61,12 +50,10 @@ function atualizar(letra, i, campo, valor) {
   salvar('dadosTreinos', dadosTreinos);
 }
 
-// ================== TREINO DO DIA E REINÍCIO ==================
 function carregarTreinoDia() {
   const qtdAtual = carregar('qtd_treinos', 5);
   const letra = TREINOS[indiceTreinoAtual];
   document.getElementById('treino-atual').innerText = letra;
-
   const lista = document.getElementById('lista-dia');
   lista.innerHTML = '';
   let feitos = 0, validos = 0;
@@ -86,7 +73,6 @@ function carregarTreinoDia() {
   let percentual = validos === 0 ? 0 : Math.round((feitos / validos) * 100);
   document.getElementById('progresso-dia').value = percentual;
   document.getElementById('percentual').innerText = percentual + '%';
-
   if (percentual === 100 && validos > 0) finalizarTreino(letra, qtdAtual);
 }
 
@@ -100,15 +86,11 @@ function finalizarTreino(letra, qtd) {
   const status = document.getElementById('status-final');
   status.style.display = 'block';
   status.innerText = 'TREINO CONCLUÍDO!';
-
-  const hoje = new Date().toLocaleDateString();
+  const hoje = new Date().toISOString().split('T')[0];
   historico[hoje] = letra;
   salvar('historico', historico);
-
-  // REGRA PERSONALIZADA: Volta ao início (A) após o limite escolhido
   indiceTreinoAtual = (indiceTreinoAtual + 1) % qtd;
   salvar('indiceTreinoAtual', indiceTreinoAtual);
-
   setTimeout(() => {
     status.style.display = 'none';
     dadosTreinos[letra].forEach(ex => ex.feito = false);
@@ -117,20 +99,57 @@ function finalizarTreino(letra, qtd) {
   }, 1500);
 }
 
-function montarCalendario() {
-  const cont = document.getElementById('calendario-container');
-  cont.innerHTML = '';
-  Object.keys(historico).forEach(data => {
-    cont.innerHTML += `<p>${data} → Treino ${historico[data]}</p>`;
-  });
-  document.getElementById('total-treinos').innerText = Object.keys(historico).length;
+function mudarMes(direcao) {
+    dataVisualizacao.setMonth(dataVisualizacao.getMonth() + direcao);
+    montarCalendario();
 }
 
-// Inicialização
+function montarCalendario() {
+    const grade = document.getElementById('calendario-grade');
+    const labelMes = document.getElementById('mes-atual');
+    grade.innerHTML = '';
+    const ano = dataVisualizacao.getFullYear();
+    const mes = dataVisualizacao.getMonth();
+    labelMes.innerText = dataVisualizacao.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+    const primeiroDiaMes = new Date(ano, mes, 1).getDay();
+    const diasNoMes = new Date(ano, mes + 1, 0).getDate();
+
+    for (let i = 0; i < primeiroDiaMes; i++) grade.innerHTML += `<div></div>`;
+
+    for (let dia = 1; dia <= diasNoMes; dia++) {
+        const dataKey = `${ano}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+        const treino = historico[dataKey] || "";
+        grade.innerHTML += `
+            <div class="calendar-day ${treino ? 'has-training' : ''}" onclick="editarDia('${dataKey}')">
+                <span>${dia}</span>
+                <small>${treino}</small>
+            </div>`;
+    }
+    document.getElementById('total-treinos').innerText = Object.keys(historico).length;
+}
+
+function editarDia(data) {
+    const novo = prompt(`Treino para ${data} (A, B, C, D, E ou vazio):`, historico[data] || "");
+    if (novo !== null) {
+        if (novo.trim() === "") delete historico[data];
+        else historico[data] = novo.toUpperCase();
+        salvar('historico', historico);
+        montarCalendario();
+    }
+}
+
+function resetarMes() {
+    if (confirm("Apagar registros do mês atual?")) {
+        const prefixo = `${dataVisualizacao.getFullYear()}-${String(dataVisualizacao.getMonth() + 1).padStart(2, '0')}`;
+        Object.keys(historico).forEach(d => { if(d.startsWith(prefixo)) delete historico[d]; });
+        salvar('historico', historico);
+        montarCalendario();
+    }
+}
+
 window.onload = () => {
     const salva = carregar('qtd_treinos', 5);
-    const select = document.getElementById('select-qtd');
-    if(select) select.value = salva;
+    if(document.getElementById('select-qtd')) document.getElementById('select-qtd').value = salva;
     aplicarQuantidade(salva);
     carregarTreinoDia();
 };
