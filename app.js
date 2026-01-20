@@ -1,39 +1,35 @@
-// ================== CONTROLE DE TELAS ==================
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(screen => {
-    screen.classList.remove('active');
-  });
-  document.getElementById(id).classList.add('active');
+// Função para mostrar a tela selecionada
+function showScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
 }
 
-// ================== DADOS BASE ==================
-const TREINOS = ['A', 'B', 'C', 'D', 'E'];
-let quantidadeTreinos = 3; // pode ser 2 a 5
-
-function treinoVazio() {
-  return Array.from({ length: 10 }, () => ({
-    nome: '',
-    serie: '',
-    repeticao: '',
-    peso: '',
-    feito: false
-  }));
+// Salva a quantidade de treinos e aplica a mudança
+function salvarConfig() {
+    const qtd = document.getElementById('select-qtd').value;
+    localStorage.setItem('qtd_treinos', qtd);
+    aplicarQuantidade(qtd);
 }
 
-// ================== STORAGE ==================
-function salvar(key, value) {
-  localStorage.setItem(key, JSON.stringify(value));
+// Esconde ou mostra os botões A, B, C, D, E
+function aplicarQuantidade(qtd) {
+    const botoes = ['A', 'B', 'C', 'D', 'E'];
+    botoes.forEach((letra, index) => {
+        const btn = document.getElementById(`btn-${letra}`);
+        if (btn) {
+            btn.style.display = (index < qtd) ? 'inline-block' : 'none';
+        }
+    });
+    // Garante que o ciclo do Al-Ahli respeite o novo limite
+    console.log("Ciclo ajustado para " + qtd + " treinos.");
 }
 
-function carregar(key, padrao) {
-  return JSON.parse(localStorage.getItem(key)) || padrao;
-}
-
-let dadosTreinos = carregar('dadosTreinos', {
-  A: treinoVazio(),
-  B: treinoVazio(),
-  C: treinoVazio(),
-  D: treinoVazio(),
+// Carrega as configurações ao abrir o app
+window.onload = () => {
+    const salva = localStorage.getItem('qtd_treinos') || 5;
+    document.getElementById('select-qtd').value = salva;
+    aplicarQuantidade(salva);
+};
   E: treinoVazio()
 });
 
@@ -153,3 +149,4 @@ if ('serviceWorker' in navigator) {
       .catch(err => console.error('Erro ao registrar Service Worker', err));
   });
 }
+
