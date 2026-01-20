@@ -73,15 +73,11 @@
         </select>
       </div>
       <div class="ajuste-item">
-        <label>Tema Base:</label>
-        <select id="select-tema" onchange="mudarTema(this.value)">
-          <option value="dark">Padrão Dark</option>
-          <option value="custom">Personalizado 🎨</option>
-        </select>
-      </div>
-      <div id="custom-theme-box" style="display:none; margin-top:10px; border-top:1px solid #444; padding-top:10px;">
-         <div style="margin-bottom:5px">Destaque: <input type="color" id="cor-destaque" onchange="aplicarTemaManual()"></div>
-         <div>Fundo: <input type="color" id="cor-fundo" onchange="aplicarTemaManual()"></div>
+        <label>Tema Personalizado:</label>
+        <div style="display: flex; gap: 10px; margin-top: 5px;">
+           <input type="color" id="cor-destaque" onchange="aplicarTemaManual()" title="Cor de Destaque">
+           <input type="color" id="cor-fundo" onchange="aplicarTemaManual()" title="Cor de Fundo">
+        </div>
       </div>
     </div>
 
