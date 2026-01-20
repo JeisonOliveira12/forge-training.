@@ -5,9 +5,8 @@
   <title>Forge Training</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="estilo.css">
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
 <header>
@@ -22,10 +21,8 @@
 </nav>
 
 <main>
-
   <section id="treinos" class="screen active">
     <h2>Treinos</h2>
-
     <div class="tabs">
       <button id="btn-A" onclick="openTreino('A')">A</button>
       <button id="btn-B" onclick="openTreino('B')">B</button>
@@ -33,7 +30,6 @@
       <button id="btn-D" onclick="openTreino('D')">D</button>
       <button id="btn-E" onclick="openTreino('E')">E</button>
     </div>
-
     <div id="treino-container">
       <p>Selecione um treino para editar.</p>
     </div>
@@ -47,10 +43,8 @@
       <progress id="progresso-dia" value="0" max="100"></progress>
       <span id="percentual">0%</span>
     </div>
-    <div id="lista-dia">
-      <p>Os exercícios do dia aparecerão aqui.</p>
-    </div>
-    <div id="status-final"></div>
+    <div id="lista-dia"></div>
+    <div id="status-final" style="display:none; color:#4CAF50; font-weight:bold; text-align:center; margin-top:10px;"></div>
   </section>
 
   <section id="calendario" class="screen">
@@ -64,9 +58,9 @@
 
   <section id="ajustes" class="screen">
     <h2>Configurações</h2>
-    <div class="config-box" style="background: #222; padding: 20px; border-radius: 8px; margin-top: 20px;">
-      <p>Selecione quantos treinos terá seu ciclo:</p>
-      <select id="select-qtd" onchange="salvarConfig()" style="width: 100%; padding: 10px; background: #333; color: white; border: 1px solid #444;">
+    <div class="config-box">
+      <p>Quantidade de treinos no ciclo:</p>
+      <select id="select-qtd" onchange="salvarConfig()">
         <option value="2">2 Treinos (A, B)</option>
         <option value="3">3 Treinos (A, B, C)</option>
         <option value="4">4 Treinos (A, B, C, D)</option>
@@ -75,10 +69,8 @@
       <p style="font-size: 0.8em; color: #888; margin-top: 15px;">O ciclo voltará ao início automaticamente após o último treino definido.</p>
     </div>
   </section>
-
 </main>
 
 <script src="app.js"></script>
 </body>
-</html>
 </html>
