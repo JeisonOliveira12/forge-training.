@@ -13,14 +13,6 @@
   <h1>Forge Training</h1>
 </header>
 
-<nav id="bottom-nav">
-  <button onclick="showScreen('treinos')">🏋️<br>Treinos</button>
-  <button onclick="showScreen('biblioteca')">📚<br>Biblioteca</button>
-  <button onclick="showScreen('dia')">🔥<br>Hoje</button>
-  <button onclick="showScreen('calendario')">📅<br>Histórico</button>
-  <button onclick="showScreen('ajustes')">⚙️<br>Ajustes</button>
-</nav>
-
 <main>
   <section id="treinos" class="screen">
     <h2>Meus Treinos</h2>
@@ -38,7 +30,7 @@
     <h2>Biblioteca de Exercícios</h2>
     <div class="config-box">
       <input type="text" id="novo-grupo" placeholder="Novo Grupo (ex: Peito)">
-      <button onclick="adicionarGrupo()" class="btn-acao">+</button>
+      <button onclick="adicionarGrupo()" class="btn-acao">Adicionar Grupo</button>
     </div>
     <div id="lista-grupos"></div>
   </section>
@@ -64,18 +56,22 @@
   <section id="ajustes" class="screen">
     <div class="config-box">
       <h3>🎨 Visual e Fontes</h3>
-      <label>Layout:</label>
-      <select id="select-layout" onchange="mudarLayout(this.value)">
-        <option value="layout-cards">Cards Modernos</option>
-        <option value="layout-list">Lista Minimalista</option>
-        <option value="layout-glass">Glass (Translúcido)</option>
-      </select>
-      <label>Fonte:</label>
-      <select id="select-fonte" onchange="mudarFonte(this.value)">
-        <option value="font-modern">Moderna</option>
-        <option value="font-sport">Sport (Robusta)</option>
-        <option value="font-tech">Tech (Digital)</option>
-      </select>
+      <div class="ajuste-item">
+        <label>Layout:</label>
+        <select id="select-layout" onchange="mudarLayout(this.value)">
+          <option value="layout-cards">Cards Modernos</option>
+          <option value="layout-list">Lista Minimalista</option>
+          <option value="layout-glass">Glass (Translúcido)</option>
+        </select>
+      </div>
+      <div class="ajuste-item">
+        <label>Fonte:</label>
+        <select id="select-fonte" onchange="mudarFonte(this.value)">
+          <option value="font-modern">Moderna</option>
+          <option value="font-sport">Sport (Robusta)</option>
+          <option value="font-tech">Tech (Digital)</option>
+        </select>
+      </div>
     </div>
 
     <div class="config-box">
@@ -91,11 +87,19 @@
       <h3>⏱️ Cronômetros</h3>
       <label><input type="checkbox" id="check-descanso" onchange="toggleDescanso(this.checked)"> Ativar Timer de Descanso</label>
       <div id="descanso-config" style="display:none; margin-top:10px;">
-        Segundos: <input type="number" id="input-segundos-descanso" value="60" style="width:60px">
+        Segundos: <input type="number" id="input-segundos-descanso" value="60">
       </div>
     </div>
   </section>
 </main>
+
+<nav id="bottom-nav">
+  <button onclick="showScreen('treinos')">🏋️<br>Treinos</button>
+  <button onclick="showScreen('biblioteca')">📚<br>Livro</button>
+  <button onclick="showScreen('dia')">🔥<br>Hoje</button>
+  <button onclick="showScreen('calendario')">📅<br>Histórico</button>
+  <button onclick="showScreen('ajustes')">⚙️<br>Ajustes</button>
+</nav>
 
 <div id="timer-descanso-ui" style="display:none;">
   <span id="valor-descanso">60</span>s
