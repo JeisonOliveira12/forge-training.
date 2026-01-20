@@ -21,7 +21,7 @@
 </nav>
 
 <main>
-  <section id="treinos" class="screen active">
+  <section id="treinos" class="screen">
     <h2>Meus Treinos</h2>
     <div class="tabs">
       <button id="btn-A" onclick="openTreino('A')">A</button>
@@ -35,7 +35,7 @@
     </div>
   </section>
 
-  <section id="dia" class="screen">
+  <section id="dia" class="screen active">
     <h2>Treino do Dia</h2>
     <div id="treino-dia-info">
       <p>Treino atual: <strong id="treino-atual">A</strong></p>
@@ -54,8 +54,16 @@
       <button onclick="mudarMes(1)">▶</button>
     </div>
     <div id="calendario-grade" class="calendar-grid"></div>
+    
     <div id="resumo" style="margin-top:20px; border-top:1px solid #444; padding-top:15px;">
-      <p>Total realizados: <strong id="total-treinos">0</strong></p>
+      <p>Total Geral: <strong id="total-treinos">0</strong></p>
+      <div id="contagem-individual" style="font-size: 0.9em; color: #4CAF50; margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+        <span>A: <strong id="count-A">0</strong></span>
+        <span>B: <strong id="count-B">0</strong></span>
+        <span>C: <strong id="count-C">0</strong></span>
+        <span>D: <strong id="count-D">0</strong></span>
+        <span>E: <strong id="count-E">0</strong></span>
+      </div>
       <button onclick="resetarMes()" style="background:#a00; color:white; border:none; padding:10px; border-radius:4px; width:100%; font-weight:bold;">LIMPAR MÊS ATUAL</button>
     </div>
   </section>
