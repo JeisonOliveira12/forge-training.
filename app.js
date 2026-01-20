@@ -1,177 +1,170 @@
-let dadosTreinos = JSON.parse(localStorage.getItem('dadosTreinos')) || { A: [], B: [], C: [], D: [], E: [] };
-let biblioteca = JSON.parse(localStorage.getItem('biblioteca')) || { "Geral": ["Flexão", "Prancha"] };
-let historico = JSON.parse(localStorage.getItem('historico')) || {};
-let mesVisualizacao = new Date();
+/* =========================
+   VARIÁVEIS GLOBAIS DE TEMA
+   ========================= */
+:root {
+  --bg-color: #0f0f0f;
+  --card-color: #1a1a1a;
+  --text-color: #eaeaea;
+  --muted-text: #9a9a9a;
+  --border-color: #333;
+  --accent-color: #ff6a00;
 
-// NAVEGAÇÃO
-function showScreen(id) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    if(id === 'dia') carregarTreinoDia();
-    if(id === 'biblioteca') renderizarBiblioteca();
-    if(id === 'calendario') montarCalendario();
+  /* cores dos treinos */
+  --color-A: #ff6a00;
+  --color-B: #00c2ff;
+  --color-C: #7dff00;
+  --color-D: #ff005c;
+  --color-E: #b400ff;
 }
 
-// BIBLIOTECA - CRIAÇÃO DE GRUPOS CORRIGIDA
-function adicionarGrupo() {
-    const input = document.getElementById('novo-grupo-input');
-    const nome = input.value.trim();
-    if(nome) {
-        if(!biblioteca[nome]) {
-            biblioteca[nome] = [];
-            input.value = '';
-            salvarBib();
-            renderizarBiblioteca();
-        } else { alert("Esse grupo já existe!"); }
-    }
+/* =========================
+   RESET BÁSICO
+   ========================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-function adicionarExercicioGrupo(grupo) {
-    const nome = prompt(`Novo exercício para ${grupo}:`);
-    if(nome) {
-        biblioteca[grupo].push(nome);
-        salvarBib();
-        renderizarBiblioteca();
-    }
+body {
+  background: var(--bg-color);
+  color: var(--text-color);
+  min-height: 100vh;
 }
 
-function renderizarBiblioteca() {
-    const container = document.getElementById('lista-grupos');
-    container.innerHTML = '';
-    for(let grupo in biblioteca) {
-        container.innerHTML += `
-            <div class="config-box">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <strong style="color:var(--accent-color)">${grupo}</strong>
-                    <button onclick="adicionarExercicioGrupo('${grupo}')" class="btn-acao" style="padding:2px 8px">+</button>
-                </div>
-                ${biblioteca[grupo].map(ex => `<div style="padding:8px 0; border-bottom:1px solid #222; font-size:14px;">${ex}</div>`).join('')}
-            </div>`;
-    }
-}
-function salvarBib() { localStorage.setItem('biblioteca', JSON.stringify(biblioteca)); }
-
-// CALENDÁRIO CORRIGIDO
-function mudarMes(delta) {
-    mesVisualizacao.setMonth(mesVisualizacao.getMonth() + delta);
-    montarCalendario();
+/* =========================
+   HEADER E NAVEGAÇÃO
+   ========================= */
+header {
+  padding: 14px;
+  text-align: center;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--card-color);
 }
 
-function montarCalendario() {
-    const grade = document.getElementById('calendario-grade');
-    const mesTxt = document.getElementById('mes-atual');
-    grade.innerHTML = '';
-    
-    const ano = mesVisualizacao.getFullYear();
-    const mes = mesVisualizacao.getMonth();
-    mesTxt.innerText = new Date(ano, mes).toLocaleDateString('pt-BR', {month:'long', year:'numeric'});
-
-    const primeiroDiaSemana = new Date(ano, mes, 1).getDay();
-    const totalDiasMes = new Date(ano, mes + 1, 0).getDate();
-
-    // Espaços vazios
-    for(let i=0; i<primeiroDiaSemana; i++) grade.innerHTML += `<div></div>`;
-
-    for(let d=1; d<=totalDiasMes; d++) {
-        const dataStr = `${ano}-${String(mes+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-        const treinoFeito = historico[dataStr];
-        const corBorda = treinoFeito ? `var(--color-${treinoFeito})` : '#333';
-        
-        grade.innerHTML += `
-            <div class="calendar-day ${treinoFeito ? 'has-treino' : ''}" 
-                 style="border: 2px solid ${corBorda}; color: ${treinoFeito ? corBorda : '#fff'}">
-                ${d}
-                ${treinoFeito ? `<small style="position:absolute; bottom:2px; font-size:7px;">${treinoFeito}</small>` : ''}
-            </div>`;
-    }
+header h1 {
+  font-size: 1.3rem;
+  letter-spacing: 1px;
 }
 
-// VISUAIS E CORES
-function mudarLayout(l) {
-    document.body.classList.remove('layout-cards', 'layout-list', 'layout-glass');
-    document.body.classList.add(l);
-    localStorage.setItem('cfg_layout', l);
+nav {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--card-color);
 }
 
-function mudarFonte(f) {
-    document.body.classList.remove('font-modern', 'font-sport', 'font-tech');
-    document.body.classList.add(f);
-    localStorage.setItem('cfg_fonte', f);
+nav button {
+  flex: 1;
+  padding: 12px;
+  background: none;
+  border: none;
+  color: var(--muted-text);
+  font-weight: bold;
 }
 
-function aplicarTemaManual() {
-    const f = document.getElementById('cor-fundo').value;
-    const d = document.getElementById('cor-destaque').value;
-    document.documentElement.style.setProperty('--bg-color', f);
-    document.documentElement.style.setProperty('--accent-color', d);
-    localStorage.setItem('cfg_f', f); localStorage.setItem('cfg_d', d);
+nav button:active {
+  background: var(--border-color);
+  color: var(--text-color);
 }
 
-function atualizarCorTreino(l, c) {
-    document.documentElement.style.setProperty(`--color-${l}`, c);
-    let cores = JSON.parse(localStorage.getItem('cfg_cores_cal')) || {};
-    cores[l] = c;
-    localStorage.setItem('cfg_cores_cal', JSON.stringify(cores));
+/* =========================
+   TELAS
+   ========================= */
+main {
+  padding: 14px;
 }
 
-// TREINO DO DIA
-function carregarTreinoDia() {
-    let idx = parseInt(localStorage.getItem('idx_treino') || 0);
-    let l = "ABCDE"[idx];
-    document.getElementById('treino-atual-letra').innerText = l;
-    let lista = document.getElementById('lista-dia');
-    lista.innerHTML = '';
-    const treinosValidos = dadosTreinos[l].filter(e => e.nome);
-    
-    if(treinosValidos.length === 0) {
-        lista.innerHTML = `<p style="text-align:center; opacity:0.5;">Nenhum exercício configurado para o Treino ${l}. Vá na aba Treinos.</p>`;
-        return;
-    }
-
-    treinosValidos.forEach((ex, i) => {
-        lista.innerHTML += `
-            <div class="lista-item">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <strong>${ex.nome}</strong>
-                    <input type="checkbox" onchange="atualizarProgresso()" style="width:25px; height:25px;">
-                </div>
-                <small>${ex.peso}kg</small>
-            </div>`;
-    });
+.screen {
+  display: none;
 }
 
-function atualizarProgresso() {
-    const checks = document.querySelectorAll('#lista-dia input[type="checkbox"]');
-    const marcados = Array.from(checks).filter(c => c.checked).length;
-    const total = checks.length;
-    const perc = Math.round((marcados / total) * 100);
-    document.getElementById('progresso-dia').value = perc;
-    document.getElementById('percentual').innerText = perc + "%";
-    
-    if(perc === 100) {
-        setTimeout(() => {
-            if(confirm("Treino finalizado! Salvar no histórico?")) {
-                let h = new Date().toISOString().split('T')[0];
-                let idx = parseInt(localStorage.getItem('idx_treino') || 0);
-                historico[h] = "ABCDE"[idx];
-                localStorage.setItem('historico', JSON.stringify(historico));
-                localStorage.setItem('idx_treino', (idx + 1) % 5);
-                showScreen('dia');
-            }
-        }, 500);
-    }
+.screen.active {
+  display: block;
 }
 
-// INICIALIZAÇÃO
-window.onload = () => {
-    if(localStorage.getItem('cfg_layout')) mudarLayout(localStorage.getItem('cfg_layout'));
-    if(localStorage.getItem('cfg_fonte')) mudarFonte(localStorage.getItem('cfg_fonte'));
-    if(localStorage.getItem('cfg_f')) {
-        document.getElementById('cor-fundo').value = localStorage.getItem('cfg_f');
-        document.getElementById('cor-destaque').value = localStorage.getItem('cfg_d');
-        aplicarTemaManual();
-    }
-    const cores = JSON.parse(localStorage.getItem('cfg_cores_cal')) || {};
-    Object.keys(cores).forEach(l => atualizarCorTreino(l, cores[l]));
-    showScreen('dia');
-};
+h2 {
+  margin-bottom: 12px;
+  font-size: 1.1rem;
+  border-left: 4px solid var(--accent-color);
+  padding-left: 8px;
+}
+
+/* =========================
+   CARDS / CAIXAS
+   ========================= */
+.config-box,
+.lista-item,
+#treino-container,
+#lista-dia,
+#calendario-container {
+  background: var(--card-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+/* =========================
+   BOTÕES
+   ========================= */
+.btn-acao {
+  background: var(--accent-color);
+  border: none;
+  color: #000;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+/* =========================
+   TREINO DO DIA
+   ========================= */
+.lista-item small {
+  color: var(--muted-text);
+}
+
+/* =========================
+   PROGRESSO
+   ========================= */
+progress {
+  width: 100%;
+  height: 18px;
+}
+
+/* =========================
+   CALENDÁRIO
+   ========================= */
+#calendario-grade {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.calendar-day {
+  position: relative;
+  padding: 10px;
+  text-align: center;
+  border-radius: 4px;
+  border: 2px solid var(--border-color);
+  color: var(--text-color);
+  background: var(--bg-color);
+}
+
+.calendar-day.has-treino {
+  font-weight: bold;
+}
+
+/* =========================
+   FONTES E LAYOUTS
+   ========================= */
+.font-modern { font-family: system-ui; }
+.font-sport { font-family: Arial, sans-serif; }
+.font-tech { font-family: monospace; }
+
+.layout-cards .config-box { border-radius: 10px; }
+.layout-list .config-box { border-radius: 0; }
+.layout-glass .config-box {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(6px);
+}
