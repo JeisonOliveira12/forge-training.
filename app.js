@@ -1,198 +1,83 @@
-const TREINOS = ['A', 'B', 'C', 'D', 'E'];
-const TEMAS = {
-    industrial: { accent: '#ff8c00', bg: '#0a0e14', card: '#161b22', text: '#e0e0e0' },
-    neon: { accent: '#39FF14', bg: '#000000', card: '#111111', text: '#ffffff' },
-    royal: { accent: '#d4af37', bg: '#2c0000', card: '#3d0000', text: '#f5f5f5' }
-};
+const ICONS = ["🏋️", "💪", "🏃", "🔥", "🎯", "⚡"];
+let dadosTreinos = JSON.parse(localStorage.getItem('dadosTreinos')) || { A: [], B: [], C: [], D: [], E: [] };
+let biblioteca = JSON.parse(localStorage.getItem('biblioteca')) || { "Peito": ["Supino"], "Pernas": ["Agachamento"] };
+let historico = JSON.parse(localStorage.getItem('historico')) || {};
+let tempoInicioSessao = Date.now();
 
-const salvar = (chave, valor) => localStorage.setItem(chave, JSON.stringify(valor));
-const carregar = (chave, padrao) => {
-    const dado = localStorage.getItem(chave);
-    return dado ? JSON.parse(dado) : padrao;
-};
-
-const treinoVazio = () => Array.from({ length: 10 }, () => ({ nome: '', serie: '', repeticao: '', peso: '', feito: false }));
-let dadosTreinos = carregar('dadosTreinos', { A: treinoVazio(), B: treinoVazio(), C: treinoVazio(), D: treinoVazio(), E: treinoVazio() });
-let indiceTreinoAtual = carregar('indiceTreinoAtual', 0);
-let historico = carregar('historico', {});
-let dataVisualizacao = new Date();
-
-function showScreen(screenId) {
+// Navegação
+function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(screenId).classList.add('active');
-    if(screenId === 'dia') carregarTreinoDia();
-    if(screenId === 'calendario') montarCalendario();
+    document.getElementById(id).classList.add('active');
+    if(id === 'dia') carregarTreinoDia();
+    if(id === 'biblioteca') renderizarBiblioteca();
 }
 
-// --- LÓGICA DE TEMAS ---
-function mudarTema(nome) {
-    const customDiv = document.getElementById('custom-colors');
-    if (nome === 'custom') {
-        customDiv.style.display = 'block';
-        const c = carregar('tema_custom', { accent: '#ff8c00', bg: '#0a0e14' });
-        aplicarVariaveis(c.accent, c.bg, '#1a1a1a', '#ffffff');
-    } else {
-        if(customDiv) customDiv.style.display = 'none';
-        const t = TEMAS[nome];
-        aplicarVariaveis(t.accent, t.bg, t.card, t.text);
+// Biblioteca
+function adicionarGrupo() {
+    let n = document.getElementById('novo-grupo').value;
+    if(n) { biblioteca[n] = []; document.getElementById('novo-grupo').value = ''; renderizarBiblioteca(); salvarBib(); }
+}
+function adicionarExercicioGrupo(g) {
+    let ex = prompt("Nome do exercício:");
+    if(ex) { biblioteca[g].push(ex); renderizarBiblioteca(); salvarBib(); }
+}
+function renderizarBiblioteca() {
+    let c = document.getElementById('lista-grupos'); c.innerHTML = '';
+    for(let g in biblioteca) {
+        c.innerHTML += `<div class="grupo-container"><div class="grupo-titulo">${g} <button onclick="adicionarExercicioGrupo('${g}')">+</button></div>
+        ${biblioteca[g].map(e => `<div>${e}</div>`).join('')}</div>`;
     }
-    salvar('tema_escolhido', nome);
 }
+function salvarBib() { localStorage.setItem('biblioteca', JSON.stringify(biblioteca)); }
 
-function aplicarCorManual() {
-    const accent = document.getElementById('color-accent').value;
-    const bg = document.getElementById('color-bg').value;
-    aplicarVariaveis(accent, bg, '#1a1a1a', '#ffffff');
-    salvar('tema_custom', { accent, bg });
+// Edição de Treinos com Biblioteca
+function openTreino(l) {
+    let cont = document.getElementById('treino-container');
+    if(!dadosTreinos[l].length) dadosTreinos[l] = Array.from({length:5}, () => ({icon:"🏋️", nome:"", serie:"", rep:"", peso:"", feito:false}));
+    
+    let opcoes = `<option value="">-- Selecione --</option>`;
+    for(let g in biblioteca) {
+        opcoes += `<optgroup label="${g}">${biblioteca[g].map(e => `<option value="${e}">${e}</option>`).join('')}</optgroup>`;
+    }
+
+    cont.innerHTML = `<h3>Treino ${l}</h3>`;
+    dadosTreinos[l].forEach((ex, i) => {
+        cont.innerHTML += `<div class="lista-item">
+            <select onchange="atualizar('${l}',${i},'icon',this.value)">${ICONS.map(ic => `<option ${ex.icon==ic?'selected':''}>${ic}</option>`).join('')}</select>
+            <select onchange="atualizar('${l}',${i},'nome',this.value)"><option>${ex.nome || 'Exercício'}</option>${opcoes}</select>
+            <input placeholder="Kg" value="${ex.peso}" oninput="atualizar('${l}',${i},'peso',this.value)" style="width:40px">
+        </div>`;
+    });
 }
+function atualizar(l, i, f, v) { dadosTreinos[l][i][f] = v; localStorage.setItem('dadosTreinos', JSON.stringify(dadosTreinos)); }
 
-function aplicarVariaveis(accent, bg, card, text) {
-    const root = document.documentElement;
-    root.style.setProperty('--accent-color', accent);
-    root.style.setProperty('--bg-color', bg);
-    root.style.setProperty('--card-bg', card);
-    root.style.setProperty('--text-color', text);
-}
-
-// --- RESTANTE DAS FUNÇÕES ---
-function salvarConfig() {
-    const qtd = document.getElementById('select-qtd').value;
-    salvar('qtd_treinos', qtd);
-    aplicarQuantidade(qtd);
-}
-
-function aplicarQuantidade(qtd) {
-    TREINOS.forEach((letra, index) => {
-        const btn = document.getElementById(`btn-${letra}`);
-        if (btn) btn.style.display = (index < qtd) ? 'inline-block' : 'none';
+// Lógica de hoje e Calendário
+function carregarTreinoDia() {
+    let l = "ABCDE"[parseInt(localStorage.getItem('idx') || 0)];
+    document.getElementById('treino-atual-letra').innerText = l;
+    let lista = document.getElementById('lista-dia'); lista.innerHTML = '';
+    dadosTreinos[l].filter(e => e.nome).forEach((ex, i) => {
+        lista.innerHTML += `<div class="lista-item"><span>${ex.icon}</span> ${ex.nome} <input type="checkbox" onchange="finalizar('${l}')"></div>`;
     });
 }
 
-function openTreino(letra) {
-  const container = document.getElementById('treino-container');
-  container.innerHTML = `<h3>Treino ${letra}</h3>`;
-  dadosTreinos[letra].forEach((ex, i) => {
-    container.innerHTML += `
-      <div style="margin-bottom:8px">
-        <input placeholder="Exercicio" value="${ex.nome}" oninput="atualizar('${letra}',${i},'nome',this.value)">
-        <input placeholder="S" value="${ex.serie}" oninput="atualizar('${letra}',${i},'serie',this.value)">
-        <input placeholder="R" value="${ex.repeticao}" oninput="atualizar('${letra}',${i},'repeticao',this.value)">
-        <input placeholder="Kg" value="${ex.peso}" oninput="atualizar('${letra}',${i},'peso',this.value)">
-      </div>`;
-  });
+function finalizar(l) {
+    let h = new Date().toISOString().split('T')[0]; historico[h] = l;
+    localStorage.setItem('historico', JSON.stringify(historico));
+    localStorage.setItem('idx', (parseInt(localStorage.getItem('idx') || 0) + 1) % 5);
+    alert("Treino Concluído!");
 }
 
-function atualizar(letra, i, campo, valor) {
-  dadosTreinos[letra][i][campo] = valor;
-  salvar('dadosTreinos', dadosTreinos);
-}
+// Configurações
+function mudarLayout(l) { document.body.className = document.body.className.replace(/layout-\w+/g, '') + ' ' + l; }
+function mudarFonte(f) { document.body.className = document.body.className.replace(/font-\w+/g, '') + ' ' + f; }
+function atualizarCorTreino(l, c) { document.documentElement.style.setProperty(`--color-${l}`, c); }
+function toggleDescanso(v) { document.getElementById('timer-descanso-ui').style.display = v?'block':'none'; }
 
-function carregarTreinoDia() {
-  const qtdAtual = carregar('qtd_treinos', 5);
-  const letra = TREINOS[indiceTreinoAtual];
-  document.getElementById('treino-atual').innerText = letra;
-  const lista = document.getElementById('lista-dia');
-  lista.innerHTML = '';
-  let feitos = 0, validos = 0;
+// Cronômetro Sessão
+setInterval(() => {
+    let d = new Date(Date.now() - tempoInicioSessao);
+    document.getElementById('header-timer').innerText = d.getUTCHours().toString().padStart(2,'0')+":"+d.getUTCMinutes().toString().padStart(2,'0')+":"+d.getUTCSeconds().toString().padStart(2,'0');
+}, 1000);
 
-  dadosTreinos[letra].forEach((ex, i) => {
-    if (ex.nome.trim() !== '') {
-      validos++;
-      if (ex.feito) feitos++;
-      lista.innerHTML += `
-        <label style="display:block; margin:10px 0; background:var(--card-bg); padding:10px; border-radius:8px;">
-          <input type="checkbox" style="width:20px" ${ex.feito ? 'checked' : ''} onchange="concluirExercicio('${letra}',${i},this.checked)">
-          ${ex.nome} (${ex.serie}x${ex.repeticao} - ${ex.peso}kg)
-        </label>`;
-    }
-  });
-
-  let percentual = validos === 0 ? 0 : Math.round((feitos / validos) * 100);
-  document.getElementById('progresso-dia').value = percentual;
-  document.getElementById('percentual').innerText = percentual + '%';
-  if (percentual === 100 && validos > 0) finalizarTreino(letra, qtdAtual);
-}
-
-function concluirExercicio(letra, i, status) {
-  dadosTreinos[letra][i].feito = status;
-  salvar('dadosTreinos', dadosTreinos);
-  carregarTreinoDia();
-}
-
-function finalizarTreino(letra, qtd) {
-  const status = document.getElementById('status-final');
-  status.style.display = 'block'; status.innerText = 'TREINO CONCLUÍDO!';
-  const agora = new Date();
-  const hoje = `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, '0')}-${String(agora.getDate()).padStart(2, '0')}`;
-  historico[hoje] = letra;
-  salvar('historico', historico);
-  indiceTreinoAtual = (indiceTreinoAtual + 1) % qtd;
-  salvar('indiceTreinoAtual', indiceTreinoAtual);
-  setTimeout(() => {
-    status.style.display = 'none';
-    dadosTreinos[letra].forEach(ex => ex.feito = false);
-    salvar('dadosTreinos', dadosTreinos);
-    carregarTreinoDia();
-  }, 1500);
-}
-
-function mudarMes(direcao) {
-    dataVisualizacao.setMonth(dataVisualizacao.getMonth() + direcao);
-    montarCalendario();
-}
-
-function montarCalendario() {
-    const grade = document.getElementById('calendario-grade');
-    const labelMes = document.getElementById('mes-atual');
-    if(!grade) return;
-    grade.innerHTML = '';
-    const ano = dataVisualizacao.getFullYear();
-    const mes = dataVisualizacao.getMonth();
-    labelMes.innerText = dataVisualizacao.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-    const pDia = new Date(ano, mes, 1).getDay();
-    const dMes = new Date(ano, mes + 1, 0).getDate();
-    const conts = { A: 0, B: 0, C: 0, D: 0, E: 0 };
-
-    for (let i = 0; i < pDia; i++) grade.innerHTML += `<div></div>`;
-    for (let dia = 1; dia <= dMes; dia++) {
-        const dk = `${ano}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
-        const t = historico[dk] || "";
-        if (t && conts[t] !== undefined) conts[t]++;
-        grade.innerHTML += `<div class="calendar-day ${t?'has-training':''}" onclick="editarDia('${dk}')"><span>${dia}</span><small>${t}</small></div>`;
-    }
-    document.getElementById('total-treinos').innerText = Object.keys(historico).length;
-    TREINOS.forEach(l => { const el = document.getElementById(`count-${l}`); if(el) el.innerText = conts[l]; });
-}
-
-function editarDia(data) {
-    const n = prompt(`Treino para ${data}:`, historico[data] || "");
-    if (n !== null) {
-        const valor = n.toUpperCase().trim();
-        if (valor === "") delete historico[data];
-        else historico[data] = valor;
-        salvar('historico', historico);
-        montarCalendario();
-    }
-}
-
-function resetarMes() {
-    if (confirm("Resetar este mês?")) {
-        const pref = `${dataVisualizacao.getFullYear()}-${String(dataVisualizacao.getMonth() + 1).padStart(2, '0')}`;
-        Object.keys(historico).forEach(d => { if(d.startsWith(pref)) delete historico[d]; });
-        salvar('historico', historico);
-        montarCalendario();
-    }
-}
-
-window.onload = () => {
-    const q = carregar('qtd_treinos', 5);
-    if(document.getElementById('select-qtd')) document.getElementById('select-qtd').value = q;
-    aplicarQuantidade(q);
-    
-    // Carregar Tema
-    const tSalvo = carregar('tema_escolhido', 'industrial');
-    mudarTema(tSalvo);
-    if(document.getElementById('select-tema')) document.getElementById('select-tema').value = tSalvo;
-
-    showScreen('dia');
-};
+window.onload = () => showScreen('dia');
