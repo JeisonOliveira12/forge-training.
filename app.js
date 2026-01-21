@@ -270,3 +270,150 @@ function renderizarBiblioteca() {
 function salvarBib() {
   localStorage.setItem("biblioteca", JSON.stringify(biblioteca));
 }
+
+/* ---------- CALENDÁRIO ---------- */
+function mudarMes(delta) {
+  mesVisualizacao.setMonth(mesVisualizacao.getMonth() + delta);
+  montarCalendario();
+}
+
+function montarCalendario() {
+  const grade = document.getElementById("calendario-grade");
+  const mesTxt = document.getElementById("mes-atual");
+  if (!grade || !mesTxt) return;
+  grade.innerHTML = "";
+
+  const ano = mesVisualizacao.getFullYear();
+  const mes = mesVisualizacao.getMonth();
+
+  mesTxt.innerText = new Date(ano, mes)
+    .toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+
+  const primeiroDia = new Date(ano, mes, 1).getDay();
+  const totalDias = new Date(ano, mes + 1, 0).getDate();
+
+  for (let i = 0; i < primeiroDia; i++) grade.innerHTML += "<div></div>";
+
+  for (let d = 1; d <= totalDias; d++) {
+    const dataStr = `${ano}-${String(mes + 1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    const treino = historico[dataStr];
+
+    const diaSemana = new Date(ano, mes, d).getDay(); // 0 dom, 6 sáb
+    const corSemTreino = (diaSemana === 0 || diaSemana === 6) ? "#555" : "#333";
+    const cor = treino ? `var(--color-${treino})` : corSemTreino;
+
+    grade.innerHTML += `
+      <div class="calendar-day ${treino ? "has-treino" : ""}"
+           style="border-color:${cor};color:${cor}"
+           onclick="marcarManual('${dataStr}')">
+        ${d}
+        ${treino ? `<small style="position:absolute;bottom:4px;font-size:8px">${treino}</small>` : ""}
+      </div>
+    `;
+  }
+
+  montarResumoTreinos();
+}
+
+function montarResumoTreinos() {
+  const resumoBox = document.getElementById("resumo-treinos");
+  if (!resumoBox) return;
+
+  const contagens = { A:0, B:0, C:0, D:0, E:0 };
+  Object.values(historico).forEach(letra => {
+    if (contagens[letra] !== undefined) contagens[letra]++;
+  });
+
+  const total = Object.keys(historico).length;
+
+  resumoBox.innerHTML = `
+    <h3>Resumo dos Treinos</h3>
+    <p>Total: <strong>${total}</strong></p>
+    <ul style="list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(2,1fr);gap:6px">
+      ${Object.keys(contagens)
+        .slice(0, qtdTreinos)
+        .map(l => `<li>Treino ${l}: <strong>${contagens[l]}</strong></li>`)
+        .join("")}
+    </ul>
+  `;
+}
+
+function marcarManual(data) {
+  const letra = prompt(`Marcar qual treino? (A–${letras[qtdTreinos-1]})`);
+  if (!letra) return;
+  const up = letra.toUpperCase();
+  if (!letras.slice(0, qtdTreinos).includes(up)) return;
+
+  historico[data] = up;
+  localStorage.setItem("historico", JSON.stringify(historico));
+  montarCalendario();
+}
+
+/* ---------- VISUAL ---------- */
+function mudarFonte(f) {
+  document.body.classList.remove("font-modern","font-sport","font-tech");
+  document.body.classList.add(f);
+  localStorage.setItem("cfg_fonte", f);
+}
+
+function aplicarTemaManual() {
+  const bg = document.getElementById("cor-fundo").value;
+  const ac = document.getElementById("cor-destaque").value;
+
+  document.documentElement.style.setProperty("--bg-color", bg);
+  document.documentElement.style.setProperty("--accent-color", ac);
+
+  localStorage.setItem("cfg_bg", bg);
+  localStorage.setItem("cfg_ac", ac);
+}
+
+function atualizarCorTreino(letra, cor) {
+  document.documentElement.style.setProperty(`--color-${letra}`, cor);
+  let cores = JSON.parse(localStorage.getItem("cfg_cores")) || {};
+  cores[letra] = cor;
+  localStorage.setItem("cfg_cores", JSON.stringify(cores));
+}
+
+function mudarCorFonte(cor) {
+  document.documentElement.style.setProperty("--font-color", cor);
+  localStorage.setItem("cfg_font_color", cor);
+}
+
+/* ---------- INIT ---------- */
+window.onload = () => {
+  // Fonte
+  const f = localStorage.getItem("cfg_fonte");
+  if (f) mudarFonte(f);
+
+  // Tema
+  const bg = localStorage.getItem("cfg_bg");
+  const ac = localStorage.getItem("cfg_ac");
+  if (bg && ac) {
+    document.getElementById("cor-fundo").value = bg;
+    document.getElementById("cor-destaque").value = ac;
+    aplicarTemaManual();
+  }
+
+  // Cor da fonte
+  const corFonte = localStorage.getItem("cfg_font_color");
+  if (corFonte) {
+    document.documentElement.style.setProperty("--font-color", corFonte);
+  }
+
+  // Cores dos treinos
+  const cores = JSON.parse(localStorage.getItem("cfg_cores")) || {};
+  Object.keys(cores).forEach(l => atualizarCorTreino(l, cores[l]));
+
+  // Seletor de quantidade
+  const seletor = document.getElementById("qtd-treinos");
+  if (seletor) seletor.value = qtdTreinos;
+
+  // Inicializar mês de visualização
+  mesVisualizacao = new Date();
+
+  // Render inicial
+  renderizarTreinos();
+  carregarTreinoDia();
+  montarCalendario();
+  showScreen("dia");
+};
