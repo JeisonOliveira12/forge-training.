@@ -457,6 +457,7 @@ window.onload = () => {
   showScreen("dia");
 };
 function showScreen(id) {
+  alert("Mudando para: " + id);
   document.querySelectorAll(".aba").forEach(el => el.style.display = "none");
   document.getElementById(id).style.display = "block";
 }
