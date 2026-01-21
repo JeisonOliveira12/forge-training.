@@ -97,21 +97,6 @@ nav button.active {
   border-radius: 6px;
 }
 
-/* ---------- CRONÔMETROS ---------- */
-#cronometros {
-  margin-top: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-#cronometros span {
-  font-size: 20px;
-  font-weight: bold;
-  display: inline-block;
-  margin: 6px 0;
-}
-
 /* ---------- FONTS ---------- */
 .font-modern {
   font-family: "Arial", sans-serif;
@@ -139,6 +124,7 @@ nav button.active {
   margin-bottom: 10px;
   color: var(--accent-color, #0af);
 }
+
 /* ---------- Botões ---------- */
 button {
   padding: 10px 16px;
@@ -152,7 +138,7 @@ button {
 }
 
 button:hover {
-  background: #08c;
+  opacity: 0.85;
 }
 
 button.btn-outline {
@@ -174,25 +160,26 @@ input, select, textarea {
 
 /* ---------- Cards de exercício ---------- */
 .card-exercicio {
-  display: flex; /* garante alinhamento horizontal */
+  display: flex;
   justify-content: space-between; /* nome à esquerda, checkbox à direita */
   align-items: center;
   background: #222;
-  border-radius: 8px;
-  padding: 10px;
-  margin-bottom: 10px;
-  box-shadow: 0 0 5px #000;
-  flex-wrap: wrap; /* permite que o <small> que mostra reps/series/peso quebre para baixo */
+  border-radius: 6px;   /* mais compacto */
+  padding: 6px 8px;     /* menos espaço interno */
+  margin-bottom: 6px;   /* menos espaço entre blocos */
+  box-shadow: 0 0 3px #000; /* sombra mais leve */
+  flex-wrap: wrap;
 }
 
 .card-exercicio strong {
   color: var(--accent-color, #0af);
+  font-size: 14px; /* fonte menor */
 }
 
 .card-exercicio small {
-  flex-basis: 100%; /* ocupa toda a largura abaixo */
-  margin-top: 6px;
-  font-size: 12px;
+  flex-basis: 100%;
+  margin-top: 4px;
+  font-size: 11px; /* fonte menor */
   opacity: 0.8;
 }
 
@@ -251,4 +238,3 @@ input, select, textarea {
   font-weight: bold;
   color: var(--accent-color, #0af);
 }
-
