@@ -142,3 +142,71 @@ nav button.active {
 .font-tech {
   font-family: "Courier New", monospace;
 }
+
+/* ---------- Layout das abas ---------- */
+.aba {
+  padding: 20px;
+  background: #111;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  box-shadow: 0 0 10px #000;
+}
+
+.aba h2 {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: #0af;
+}
+
+/* ---------- Botões ---------- */
+button {
+  padding: 10px 16px;
+  background: #0af;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background: #08c;
+}
+
+/* ---------- Inputs ---------- */
+input, select, textarea {
+  padding: 8px;
+  background: #222;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+/* ---------- Calendário ---------- */
+.grid-calendario {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.dia {
+  padding: 10px;
+  text-align: center;
+  background: #222;
+  color: #fff;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.dia.hoje {
+  border: 2px solid #0af;
+}
+
+.dia[data-tipo="A"] { background: #800080; }
+.dia[data-tipo="B"] { background: #eee; color: #000; }
+.dia[data-tipo="C"] { background: #ff0; color: #000; }
+
+.dia.vazio { background: transparent; }
