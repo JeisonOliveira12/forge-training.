@@ -174,15 +174,26 @@ input, select, textarea {
 
 /* ---------- Cards de exercício ---------- */
 .card-exercicio {
+  display: flex; /* garante alinhamento horizontal */
+  justify-content: space-between; /* nome à esquerda, checkbox à direita */
+  align-items: center;
   background: #222;
   border-radius: 8px;
   padding: 10px;
   margin-bottom: 10px;
   box-shadow: 0 0 5px #000;
+  flex-wrap: wrap; /* permite que o <small> que mostra reps/series/peso quebre para baixo */
 }
 
 .card-exercicio strong {
   color: var(--accent-color, #0af);
+}
+
+.card-exercicio small {
+  flex-basis: 100%; /* ocupa toda a largura abaixo */
+  margin-top: 6px;
+  font-size: 12px;
+  opacity: 0.8;
 }
 
 /* ---------- Biblioteca ---------- */
@@ -240,3 +251,4 @@ input, select, textarea {
   font-weight: bold;
   color: var(--accent-color, #0af);
 }
+
