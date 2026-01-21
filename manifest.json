@@ -1,10 +1,10 @@
 {
-  "name": "Forge Training",
-  "short_name": "Forge",
-  "start_url": "index.html",
+  "name": "Meu App de Treinos",
+  "short_name": "Treinos",
+  "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#111111",
+  "background_color": "#111111",
+  "theme_color": "#0af",
   "orientation": "portrait",
   "icons": [
     {
