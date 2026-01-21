@@ -429,5 +429,9 @@ window.onload = () => {
   montarCalendario();
   showScreen("dia");
 };
+function showScreen(id) {
+  document.querySelectorAll(".aba").forEach(el => el.style.display = "none");
+  document.getElementById(id).style.display = "block";
+}
 
 
