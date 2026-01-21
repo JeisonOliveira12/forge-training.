@@ -26,6 +26,7 @@ function showScreen(id) {
   }
 
   if (id === "dia") carregarTreinoDia();
+  if (id === "treinos") renderizarTreinos();
   if (id === "biblioteca") renderizarBiblioteca();
   if (id === "calendario") montarCalendario();
 }
@@ -35,11 +36,15 @@ function definirQtdTreinos(qtd) {
   qtdTreinos = parseInt(qtd);
   localStorage.setItem("qtdTreinos", qtdTreinos);
   renderizarTreinos();
+  const idx = parseInt(localStorage.getItem("idx_treino") || 0);
+  if (idx >= qtdTreinos) localStorage.setItem("idx_treino", 0);
+  carregarTreinoDia();
 }
 
 /* ---------- TREINOS ---------- */
 function renderizarTreinos() {
   const container = document.getElementById("lista-treinos");
+  if (!container) return;
   container.innerHTML = "";
 
   for (let i = 0; i < qtdTreinos; i++) {
@@ -56,13 +61,15 @@ function renderizarTreinos() {
 /* ---------- TREINO DO DIA ---------- */
 function carregarTreinoDia() {
   const idx = parseInt(localStorage.getItem("idx_treino") || 0);
-  const letra = letras[idx];
+  const idxSeguro = Math.min(Math.max(idx, 0), qtdTreinos - 1);
+  localStorage.setItem("idx_treino", idxSeguro);
 
+  const letra = letras[idxSeguro];
   document.getElementById("treino-atual-letra").innerText = letra;
   const lista = document.getElementById("lista-dia");
   lista.innerHTML = "";
 
-  const treinos = dadosTreinos[letra].filter(e => e.nome);
+  const treinos = (dadosTreinos[letra] || []).filter(e => e && e.nome);
 
   if (treinos.length === 0) {
     lista.innerHTML = `<p style="text-align:center;opacity:.5">
@@ -106,12 +113,13 @@ function finalizarTreino() {
 
   const hoje = new Date().toISOString().split("T")[0];
   const idx = parseInt(localStorage.getItem("idx_treino") || 0);
+  const letra = letras[Math.min(idx, qtdTreinos - 1)];
 
-  historico[hoje] = letras[idx];
+  historico[hoje] = letra;
   localStorage.setItem("historico", JSON.stringify(historico));
   localStorage.setItem("idx_treino", (idx + 1) % qtdTreinos);
 
-  showScreen("dia");
+  carregarTreinoDia();
 }
 
 /* ---------- BIBLIOTECA ---------- */
@@ -129,8 +137,7 @@ function adicionarGrupo() {
 function adicionarExercicioGrupo(grupo) {
   const nome = prompt(`Novo exercício em ${grupo}:`);
   if (!nome) return;
-
-  biblioteca[grupo].push(nome);
+  biblioteca[grupo].push(nome.trim());
   salvarBib();
   renderizarBiblioteca();
 }
@@ -198,10 +205,12 @@ function montarCalendario() {
 }
 
 function marcarManual(data) {
-  const letra = prompt("Marcar qual treino? (A–E)");
-  if (!letra || !letras.includes(letra.toUpperCase())) return;
+  const letra = prompt(`Marcar qual treino? (A–${letras[qtdTreinos-1]})`);
+  if (!letra) return;
+  const up = letra.toUpperCase();
+  if (!letras.slice(0, qtdTreinos).includes(up)) return;
 
-  historico[data] = letra.toUpperCase();
+  historico[data] = up;
   localStorage.setItem("historico", JSON.stringify(historico));
   montarCalendario();
 }
@@ -214,16 +223,4 @@ function mudarFonte(f) {
 }
 
 function aplicarTemaManual() {
-  const bg = document.getElementById("cor-fundo").value;
-  const ac = document.getElementById("cor-destaque").value;
-
-  document.documentElement.style.setProperty("--bg-color", bg);
-  document.documentElement.style.setProperty("--accent-color", ac);
-
-  localStorage.setItem("cfg_bg", bg);
-  localStorage.setItem("cfg_ac", ac);
-}
-
-function atualizarCorTreino(letra, cor) {
-  document.documentElement.style.setProperty(`--color-${letra}`, cor);
-  let
+  const bg = document.getElementById("cor-fundo").value
