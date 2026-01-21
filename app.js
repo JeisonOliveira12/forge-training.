@@ -407,6 +407,9 @@ window.onload = () => {
   const seletor = document.getElementById("qtd-treinos");
   if (seletor) seletor.value = qtdTreinos;
 
+  // Inicializar mês de visualização
+  mesVisualizacao = new Date();
+
   // Render inicial
   renderizarTreinos();
   carregarTreinoDia();
