@@ -457,10 +457,11 @@ window.onload = () => {
   showScreen("dia");
 };
 function showScreen(id) {
-  alert("Mudando para: " + id);
+  alert("Mudando para: " + id); // teste: mostra qual aba foi clicada
   document.querySelectorAll(".aba").forEach(el => el.style.display = "none");
   document.getElementById(id).style.display = "block";
 }
+
 
 
 
