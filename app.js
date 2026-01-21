@@ -158,11 +158,36 @@ function salvarTreinos() {
 
 /* ---------- TREINO DO DIA ---------- */
 function carregarTreinoDia() {
-  function carregarTreinoDia() {
+  // Debug visual: confirma que a função foi chamada
   document.getElementById("debug").innerText = "Entrou em carregarTreinoDia";
+
   const idx = parseInt(localStorage.getItem("idx_treino") || 0);
   const idxSeguro = Math.min(Math.max(idx, 0), qtdTreinos - 1);
   localStorage.setItem("idx_treino", idxSeguro);
+
+  // pega o treino atual
+  const treino = treinos[idxSeguro] || [];
+
+  // pega o container da lista
+  const lista = document.getElementById("lista-dia");
+  lista.innerHTML = "";
+
+  // se não houver exercícios, mostra mensagem
+  if (treino.length === 0) {
+    lista.innerHTML = "<p style='color:white'>Nenhum exercício definido para hoje.</p>";
+    return;
+  }
+
+  // renderiza cada exercício como card
+  treino.forEach(ex => {
+    lista.innerHTML += `
+      <div class="card-exercicio">
+        <strong>${ex.nome}</strong><br>
+        Séries: ${ex.series || "-"} | Reps: ${ex.repeticoes || "-"} | Peso: ${ex.peso || "-"}
+      </div>
+    `;
+  });
+}
 
   const letra = letras[idxSeguro];
   document.getElementById("treino-atual-letra").innerText = letra;
@@ -435,6 +460,7 @@ function showScreen(id) {
   document.querySelectorAll(".aba").forEach(el => el.style.display = "none");
   document.getElementById(id).style.display = "block";
 }
+
 
 
 
