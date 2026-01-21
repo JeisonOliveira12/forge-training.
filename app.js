@@ -223,4 +223,50 @@ function mudarFonte(f) {
 }
 
 function aplicarTemaManual() {
-  const bg = document.getElementById("cor-fundo").value
+  const bg = document.getElementById("cor-fundo").value;
+  const ac = document.getElementById("cor-destaque").value;
+
+  document.documentElement.style.setProperty("--bg-color", bg);
+  document.documentElement.style.setProperty("--accent-color", ac);
+
+  localStorage.setItem("cfg_bg", bg);
+  localStorage.setItem("cfg_ac", ac);
+}
+
+function atualizarCorTreino(letra, cor) {
+  document.documentElement.style.setProperty(`--color-${letra}`, cor);
+  let cores = JSON.parse(localStorage.getItem("cfg_cores")) || {};
+  cores[letra] = cor;
+  localStorage.setItem("cfg_cores", JSON.stringify(cores));
+}
+
+/* ---------- INIT ---------- */
+window.onload = () => {
+  // Fonte
+  const f = localStorage.getItem("cfg_fonte");
+  if (f) mudarFonte(f);
+
+  // Tema
+  const bg = localStorage.getItem("cfg_bg");
+  const ac = localStorage.getItem("cfg_ac");
+  if (bg && ac) {
+    document.getElementById("cor-fundo").value = bg;
+    document.getElementById("cor-destaque").value = ac;
+    aplicarTemaManual();
+  }
+
+  // Cores dos treinos
+  const cores = JSON.parse(localStorage.getItem("cfg_cores")) || {};
+  Object.keys(cores).forEach(l => atualizarCorTreino(l, cores[l]));
+
+  // Seletor de quantidade
+  const seletor = document.getElementById("qtd-treinos");
+  if (seletor) seletor.value = qtdTreinos;
+
+  // Render inicial
+  renderizarTreinos();
+  carregarTreinoDia();
+  montarCalendario();
+  showScreen("dia");
+};
+
